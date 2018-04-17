@@ -11,32 +11,32 @@ public class TCPServer {
     private boolean running;
     private ServerSocket server;
 
-    public TCPServer(int port) {
+    public TCPServer(int port) throws Exception {
         this.port = port;
+        this.server = new ServerSocket(this.port);
     }
 
     /**
      * Starts the web socket and listens on port.
      */
-    public void start() {
-        try {
-            // Start socket on port
-            this.server = new ServerSocket(this.port);
-            System.out.println("TCP server listening on port: " + this.port);
+    public void listen() throws Exception {
+        System.out.println("TCP server listening on port: " + this.port);
 
-            while (true) {
+        // Accept connections from incoming clients
+        Socket client = this.server.accept();
 
-                // Accept connections from incoming clients
-                Socket client = this.server.accept();
+        // Get the stream of data from the client as a buffer
+        BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
-                // Get the stream of data from the client as a buffer
-                BufferedReader buffer = new BufferedReader(new InputStreamReader(client.getInputStream()));
-
-                System.out.println(buffer.readLine());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        String data = null;
+        while ((data = in.readLine()) != null) {
+            System.out.printf("RECV: %s\n", data);
         }
+    }
+
+    public void onReceivedMessage(byte[] message) {
+        System.out.printf("Received message: %s", new String(message));
+
     }
 
     /**
