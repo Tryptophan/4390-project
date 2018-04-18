@@ -11,7 +11,7 @@ public class Client {
             Scanner scanner = new Scanner(System.in);
             System.out.println("To request a file from the server type in a file name:");
 
-            String reqfile = MessageType.REQFILE + ":" + scanner.next();
+            String reqfile = MessageType.REQ_FILE + ":" + "send/" + scanner.next();
             client.sendMessage(reqfile.getBytes());
 
         } catch (Exception e) {

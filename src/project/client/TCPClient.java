@@ -3,7 +3,7 @@ package project.client;
 import project.Endpoint;
 import project.MessageType;
 
-import java.io.DataOutputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class TCPClient extends Endpoint {
@@ -42,10 +42,44 @@ public class TCPClient extends Endpoint {
         out.flush();
     }
 
-    public void onReceiveMessage(byte[] message) {
+    public void onReceiveMessage(byte[] message) throws Exception {
         String str = new String(message);
         System.out.printf("RECV: %s\n", str);
 
-        // TODO: Decide what to do for each message
+        if (str.contains(MessageType.FILE_PART)) {
+
+            String tmp = str.substring(str.indexOf(":") + 1);
+            String filename = "recv/" + tmp.substring(0, tmp.indexOf(":"));
+            String data = tmp.substring(tmp.indexOf(filename) + filename.length() - 3);
+
+            File file = new File(filename);
+
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            System.out.printf("Write data: [%s] to file [%s].", data, filename);
+
+            // File is being sent to us
+            if (str.contains(MessageType.FILE_PART)) {
+                // Write the file part to the file
+                FileWriter fw = new FileWriter(filename, true);
+                BufferedWriter bw = new BufferedWriter(fw);
+                PrintWriter out = new PrintWriter(bw);
+                try {
+                    out.println(data);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    bw.close();
+                    out.close();
+                    fw.close();
+                }
+            }
+        }
+    }
+
+    public void writeToFile(String filename, String filePart) {
+
     }
 }
