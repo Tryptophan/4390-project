@@ -8,7 +8,7 @@ public class Client {
         try {
             TCPClient client = new TCPClient("127.0.0.1", 8080) {
                 @Override
-                public void onFileComplete() throws Exception {
+                public void requestNewFile() throws Exception {
                     getFileFromUser(this);
                 }
             };

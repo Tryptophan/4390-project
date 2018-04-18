@@ -3,7 +3,6 @@ package project.client;
 import project.Endpoint;
 import project.MessageType;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.Socket;
@@ -26,7 +25,7 @@ public abstract class TCPClient extends Endpoint {
         this.ip = ip;
         this.port = port;
         Socket client = new Socket(ip, port);
-        this.out = new DataOutputStream(client.getOutputStream());
+        this.out = client.getOutputStream();
 
         // Send a message to the server we want to connect
         sendMessage(MessageType.CONN.getBytes());
@@ -38,7 +37,11 @@ public abstract class TCPClient extends Endpoint {
         String str = new String(message).replaceAll("\u0000.*", "");
         System.out.printf("RECV: %s\n", str);
 
-        if (requestingFile) {
+        if (str.equals(MessageType.NACK)) {
+            fileComplete();
+        }
+
+        else if (requestingFile) {
 
             if (str.equals(MessageType.EOF)) {
                 fileComplete();
@@ -75,8 +78,8 @@ public abstract class TCPClient extends Endpoint {
     private void fileComplete() throws Exception {
         requestingFile = false;
         requestingFilename = null;
-        onFileComplete();
+        requestNewFile();
     }
 
-    public abstract void onFileComplete() throws Exception;
+    public abstract void requestNewFile() throws Exception;
 }

@@ -21,7 +21,7 @@ public class TCPServer extends Endpoint {
         System.out.printf("TCP server listening on port %s.\n", this.port);
 
         Socket client = this.server.accept();
-        this.out = new DataOutputStream(client.getOutputStream());
+        this.out = client.getOutputStream();
         listen(client);
     }
 

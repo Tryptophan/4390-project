@@ -1,15 +1,13 @@
 package project;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 
 public abstract class Endpoint {
 
-    public DataOutputStream out;
-    public BufferedInputStream in;
+    public OutputStream out;
+    public InputStream in;
 
     public void sendMessage(byte[] message) throws Exception {
 
@@ -24,7 +22,7 @@ public abstract class Endpoint {
 
     public void listen(Socket client) throws Exception {
 
-        this.in = new BufferedInputStream(client.getInputStream());
+        this.in = client.getInputStream();
 
         // Listen for incoming messages on a new thread
         Thread listener = new Thread(() -> {
