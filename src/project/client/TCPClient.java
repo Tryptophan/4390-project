@@ -5,6 +5,7 @@ import project.MessageType;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class TCPClient extends Endpoint {
@@ -47,7 +48,7 @@ public class TCPClient extends Endpoint {
                 file.createNewFile();
             }
 
-            try (FileOutputStream fos = new FileOutputStream(file)) {
+            try (FileOutputStream fos = new FileOutputStream(file, true)) {
                 // File is being sent to us
                 // Write the chunk of the file to the file output stream
                 fos.write(message);
