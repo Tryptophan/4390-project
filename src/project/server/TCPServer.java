@@ -62,10 +62,16 @@ public class TCPServer extends Endpoint {
 
         try (FileInputStream fis = new FileInputStream(file)) {
             // Read the chunk of the file into the buffer and send to the client
+            int count;
             byte[] buffer = new byte[4096];
-            while (fis.read(buffer) > 0) {
+            while ((count = fis.read(buffer)) != -1) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                out.write(buffer, 0, count);
                 // Write to file output stream
-                sendMessage(buffer);
+                sendMessage(out.toByteArray());
+                buffer = new byte[4096];
+                out.close();
+                out.flush();
             }
             // Let the client know they have the full file
             sendMessage(MessageType.EOF.getBytes());
