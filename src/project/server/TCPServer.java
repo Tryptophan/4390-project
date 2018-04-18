@@ -14,6 +14,9 @@ public class TCPServer extends Endpoint {
     private int port;
     private ServerSocket server;
 
+    private boolean sendingFile = false;
+    private boolean sendNextFileChunk = false;
+
     public TCPServer(int port) throws Exception {
         this.port = port;
         this.server = new ServerSocket(this.port);
@@ -56,27 +59,44 @@ public class TCPServer extends Endpoint {
                 sendMessage(MessageType.NACK.getBytes());
             }
         }
+
+        else if (str.equals(MessageType.ACK) && sendingFile) {
+            sendNextFileChunk = true;
+        }
     }
 
     public void sendFile(File file) {
 
-        try (FileInputStream fis = new FileInputStream(file)) {
-            // Read the chunk of the file into the buffer and send to the client
-            int count;
-            byte[] buffer = new byte[4096];
-            while ((count = fis.read(buffer)) != -1) {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                out.write(buffer, 0, count);
-                // Write to file output stream
-                sendMessage(out.toByteArray());
-                buffer = new byte[4096];
-                out.close();
-                out.flush();
+        sendingFile = true;
+
+        Thread thread = new Thread(() -> {
+            try (FileInputStream fis = new FileInputStream(file)) {
+                // Read the chunk of the file into the buffer and send to the client
+                int count;
+                byte[] buffer = new byte[4096];
+                while ((count = fis.read(buffer)) != -1) {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    out.write(buffer, 0, count);
+                    // Write to file output stream
+                    sendMessage(out.toByteArray());
+                    buffer = new byte[4096];
+                    out.close();
+                    out.flush();
+                    // Wait for an ACK to send next chunk
+                    sendNextFileChunk = false;
+                    while(!sendNextFileChunk) {
+                        Thread.sleep(50);
+                    }
+                }
+                fis.close();
+                sendingFile = false;
+                // Let the client know they have the full file
+                sendMessage(MessageType.EOF.getBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            // Let the client know they have the full file
-            sendMessage(MessageType.EOF.getBytes());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
+
+        thread.start();
     }
 }

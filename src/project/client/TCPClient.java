@@ -41,12 +41,11 @@ public abstract class TCPClient extends Endpoint {
             fileComplete();
         }
 
-        else if (requestingFile) {
+        else if (str.equals(MessageType.EOF)) {
+            fileComplete();
+        }
 
-            if (str.equals(MessageType.EOF)) {
-                fileComplete();
-                return;
-            }
+        else if (requestingFile) {
 
             String filename = requestingFilename;
 
@@ -62,6 +61,7 @@ public abstract class TCPClient extends Endpoint {
                 fos.write(message);
                 fos.flush();
                 fos.close();
+                sendMessage(MessageType.ACK.getBytes());
             } catch (Exception e) {
                 e.printStackTrace();
             }
