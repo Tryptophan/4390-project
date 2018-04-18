@@ -5,11 +5,15 @@ import project.MessageType;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class TCPClient extends Endpoint {
 
     private String ip;
     private int port;
+
+    private boolean requestingFile = false;
+    private String requestingFilename = null;
 
     /**
      * Create a client to connect to a TCP server.
@@ -28,58 +32,35 @@ public class TCPClient extends Endpoint {
         listen(client);
     }
 
-    public void sendMessage(byte[] message) throws Exception {
-
-        String str = new String(message);
-
-        // Check if the message doesn't have a delimiter
-        if (!str.contains("\n")) {
-            str += "\n";
-        }
-
-        System.out.printf("SEND: %s", str);
-        out.write(str.getBytes());
-        out.flush();
-    }
-
     public void onReceiveMessage(byte[] message) throws Exception {
-        String str = new String(message);
+
+        String str = new String(message).replaceAll("\u0000.*", "");
         System.out.printf("RECV: %s\n", str);
 
-        if (str.contains(MessageType.FILE_PART)) {
+        if (requestingFile) {
 
-            String tmp = str.substring(str.indexOf(":") + 1);
-            String filename = "recv/" + tmp.substring(0, tmp.indexOf(":"));
-            String data = tmp.substring(tmp.indexOf(filename) + filename.length() - 3);
+            String filename = requestingFilename;
 
-            File file = new File(filename);
+            File file = new File("recv-" + filename);
 
             if (!file.exists()) {
                 file.createNewFile();
             }
 
-            System.out.printf("Write data: [%s] to file [%s].", data, filename);
-
-            // File is being sent to us
-            if (str.contains(MessageType.FILE_PART)) {
-                // Write the file part to the file
-                FileWriter fw = new FileWriter(filename, true);
-                BufferedWriter bw = new BufferedWriter(fw);
-                PrintWriter out = new PrintWriter(bw);
-                try {
-                    out.println(data);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    bw.close();
-                    out.close();
-                    fw.close();
-                }
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                // File is being sent to us
+                // Write the chunk of the file to the file output stream
+                fos.write(message);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
 
-    public void writeToFile(String filename, String filePart) {
-
+    public void requestFile(String filename) throws Exception {
+        requestingFile = true;
+        requestingFilename = filename;
+        String reqfile = MessageType.REQ_FILE + ":" + filename;
+        sendMessage(reqfile.getBytes());
     }
 }

@@ -1,38 +1,38 @@
 package project;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.Arrays;
 
 public abstract class Endpoint {
 
     public DataOutputStream out;
+    public BufferedInputStream in;
 
     public void sendMessage(byte[] message) throws Exception {
 
-        String str = new String(message);
+        String str = new String(message).replaceAll("\u0000.*", "");
 
-        // Check if the message doesn't have a delimiter
-        if (!str.contains("\n")) {
-            str += "\n";
-        }
+        // Check if the message is a predefined message
+        System.out.printf("SEND: %s\n", str);
 
-        System.out.printf("SEND: %s", str);
-        out.write(str.getBytes());
+        out.write(message);
         out.flush();
     }
 
     public void listen(Socket client) throws Exception {
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        this.in = new BufferedInputStream(client.getInputStream());
 
         // Listen for incoming messages on a new thread
         Thread listener = new Thread(() -> {
             try {
-                String message = null;
-                while ((message = in.readLine()) != null) {
-                    onReceiveMessage(message.getBytes());
+                // Read the input stream
+                byte[] buffer = new byte[4096];
+                while (in.read(buffer) > 0) {
+                    onReceiveMessage(buffer);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

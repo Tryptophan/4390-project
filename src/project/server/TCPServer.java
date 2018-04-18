@@ -27,7 +27,9 @@ public class TCPServer extends Endpoint {
 
     public void onReceiveMessage(byte[] message) throws Exception {
 
-        String str = new String(message);
+
+        // Remove all null bytes
+        String str = new String(message).replaceAll("\u0000.*", "");
         System.out.printf("RECV: %s\n", str);
 
         if (str.equals(MessageType.CONN)) {
@@ -44,7 +46,7 @@ public class TCPServer extends Endpoint {
             if (file.exists()) {
 
                 // Send file if exists
-                System.out.printf("Found file [%s].\n", filename);
+                System.out.printf("Sending file [%s] to client.\n", filename);
 
                 // Send the file to the client
                 sendFile(file);
@@ -58,38 +60,15 @@ public class TCPServer extends Endpoint {
 
     public void sendFile(File file) {
 
-        FileInputStream fis = null;
-        Reader r = null;
-        BufferedReader br = null;
-
-        try {
-
-            // Read in the file
-            fis = new FileInputStream(file);
-            r = new InputStreamReader(fis, "UTF-8");
-            br = new BufferedReader(r);
-
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                sendMessage((MessageType.FILE_PART + ":" + file.getName() + ":" + line).getBytes());
+        try (FileInputStream fis = new FileInputStream(file)) {
+            // Read the chunk of the file into the buffer and send to the client
+            byte[] buffer = new byte[4096];
+            while (fis.read(buffer) > 0) {
+                // Write to file output stream
+                sendMessage(buffer);
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                // Close the stream readers
-                if (fis != null) {
-                    fis.close();
-                }
-                if (r != null) {
-                    r.close();
-                }
-                if (br != null) {
-                    br.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }
