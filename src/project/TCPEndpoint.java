@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public abstract class Endpoint {
+public abstract class TCPEndpoint {
 
     public OutputStream out;
     public InputStream in;

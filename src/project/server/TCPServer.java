@@ -1,6 +1,6 @@
 package project.server;
 
-import project.Endpoint;
+import project.TCPEndpoint;
 import project.MessageType;
 
 import java.io.*;
@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
-public class TCPServer extends Endpoint {
+public class TCPServer extends TCPEndpoint {
 
     private int port;
     private ServerSocket server;

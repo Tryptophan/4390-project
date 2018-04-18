@@ -1,13 +1,13 @@
 package project.client;
 
-import project.Endpoint;
+import project.TCPEndpoint;
 import project.MessageType;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.Socket;
 
-public abstract class TCPClient extends Endpoint {
+public abstract class TCPClient extends TCPEndpoint {
 
     private String ip;
     private int port;
