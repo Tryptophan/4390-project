@@ -33,6 +33,8 @@ public abstract class Endpoint {
                 byte[] buffer = new byte[4096];
                 while (in.read(buffer) > 0) {
                     onReceiveMessage(buffer);
+                    // Clear buffer after message
+                    buffer = new byte[4096];
                 }
             } catch (Exception e) {
                 e.printStackTrace();

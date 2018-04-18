@@ -3,12 +3,12 @@ package project.client;
 import project.Endpoint;
 import project.MessageType;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
-public class TCPClient extends Endpoint {
+public abstract class TCPClient extends Endpoint {
 
     private String ip;
     private int port;
@@ -40,6 +40,11 @@ public class TCPClient extends Endpoint {
 
         if (requestingFile) {
 
+            if (str.equals(MessageType.EOF)) {
+                fileComplete();
+                return;
+            }
+
             String filename = requestingFilename;
 
             File file = new File("recv-" + filename);
@@ -52,6 +57,8 @@ public class TCPClient extends Endpoint {
                 // File is being sent to us
                 // Write the chunk of the file to the file output stream
                 fos.write(message);
+                fos.flush();
+                fos.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -64,4 +71,12 @@ public class TCPClient extends Endpoint {
         String reqfile = MessageType.REQ_FILE + ":" + filename;
         sendMessage(reqfile.getBytes());
     }
+
+    private void fileComplete() throws Exception {
+        requestingFile = false;
+        requestingFilename = null;
+        onFileComplete();
+    }
+
+    public abstract void onFileComplete() throws Exception;
 }

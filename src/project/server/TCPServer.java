@@ -67,6 +67,8 @@ public class TCPServer extends Endpoint {
                 // Write to file output stream
                 sendMessage(buffer);
             }
+            // Let the client know they have the full file
+            sendMessage(MessageType.EOF.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
