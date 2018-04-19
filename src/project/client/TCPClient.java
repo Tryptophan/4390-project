@@ -78,8 +78,8 @@ public abstract class TCPClient extends TCPEndpoint {
     private void fileComplete() throws Exception {
         requestingFile = false;
         requestingFilename = null;
-        requestNewFile();
+        onFileComplete();
     }
 
-    public abstract void requestNewFile() throws Exception;
+    public abstract void onFileComplete() throws Exception;
 }
