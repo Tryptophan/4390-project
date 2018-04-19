@@ -1,40 +1,35 @@
 package project.server;
 
+import project.MessageType;
+import project.UDPEndpoint;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class UDPServer {
-
-    private DatagramSocket socket;
-    private boolean running;
-    private byte[] buffer = new byte[256];
-    private int port;
+public class UDPServer extends UDPEndpoint {
 
     public UDPServer(int port) throws Exception {
-        this.port = port;
         socket = new DatagramSocket(port);
+        listen();
+        System.out.printf("UDP server listening on port %s.\n", port);
     }
 
-    public void start() throws Exception {
-        running = true;
+    public void onReceivePacket(DatagramPacket packet) throws Exception {
 
-        while (running) {
-            // Get incoming packets from client
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            socket.receive(packet);
+        // Read in the packet and prune the null bytes
+        byte[] data = new byte[packet.getLength()];
+        System.arraycopy(buffer, 0, data, 0, packet.getLength());
 
-            System.out.println(new String(packet.getData()));
+        String str = new String(data);
+        System.out.printf("RECV: %s\n", str);
 
-            //packet = new DatagramPacket(buffer, buffer.length, address, port);
-            //String received = new String(packet.getData(), 0, packet.getLength());
-            //socket.send(packet);
+        // Check if client is trying to connect
+        if (str.equals(MessageType.CONN)) {
+            // Set the client's ip and port
+            this.ip = packet.getAddress();
+            this.port = packet.getPort();
+            // Send an ACK back to the client that they're connected
+            sendMessage(MessageType.ACK.getBytes());
         }
-
-        socket.close();
     }
-
-    public void stop() {
-        running = false;
-    }
-
 }

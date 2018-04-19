@@ -1,22 +1,28 @@
 package project.client;
 
+import project.UDPEndpoint;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-public class UDPClient {
-    private DatagramSocket socket;
-    private InetAddress ip;
-    private int port;
+public class UDPClient extends UDPEndpoint {
 
     public UDPClient(String ip, int port) throws Exception {
         socket = new DatagramSocket();
         this.ip = InetAddress.getByName(ip);
         this.port = port;
+        listen();
     }
 
-    public void sendMessage(byte[] message) throws Exception {
-        DatagramPacket packet = new DatagramPacket(message, message.length, this.ip, this.port);
-        socket.send(packet);
+    @Override
+    public void onReceivePacket(DatagramPacket packet) throws Exception {
+
+        // Read in the packet and prune the null bytes
+        byte[] data = new byte[packet.getLength()];
+        System.arraycopy(buffer, 0, data, 0, packet.getLength());
+
+        String str = new String(data);
+        System.out.printf("RECV: %s\n", str);
     }
 }

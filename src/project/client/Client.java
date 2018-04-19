@@ -1,7 +1,6 @@
 package project.client;
 
 import project.MessageType;
-import project.server.UDPServer;
 
 import java.util.Scanner;
 
@@ -18,7 +17,7 @@ public class Client {
         } else {
             try {
                 UDPClient client = new UDPClient("127.0.0.1", 8080);
-                client.sendMessage("TEST".getBytes());
+                client.sendMessage(MessageType.CONN.getBytes());
             } catch (Exception e) {
                 e.printStackTrace();
             }
