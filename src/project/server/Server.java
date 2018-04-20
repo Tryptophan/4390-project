@@ -12,7 +12,7 @@ public class Server {
         String protocol = input.next();
 
         // Get the server port from the user
-        System.out.println("Type in the port to run the server on: ");
+        System.out.println("Type in the port to run the server on:");
         int port = input.nextInt();
 
         if (protocol.equals("TCP")) {

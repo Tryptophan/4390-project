@@ -14,21 +14,20 @@ public abstract class Checksum {
      * @return Byte array of the checksum.
      * @throws Exception
      */
-    public byte[] getMD5Checksum(File file) throws Exception {
+    public static byte[] getMD5Checksum(File file) throws Exception {
 
         MessageDigest md = MessageDigest.getInstance("MD5");
 
         try (InputStream is = new FileInputStream(file); DigestInputStream dis = new DigestInputStream(is, md)) {
 
+            byte[] buffer = new byte[256];
+            while (dis.read(buffer) > 0) {
+                System.out.println(new String(buffer));
+            }
+
+        } catch (Exception e) { e.printStackTrace(); }
 
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        byte[] digest = md.digest();
-
-        System.out.printf("Got checksum: %s.\n", digest);
-        return digest;
+        return md.digest();
     }
 }

@@ -32,7 +32,7 @@ public abstract class TCPEndpoint {
                 int count;
                 byte[] buffer = new byte[4096];
                 while ((count = in.read(buffer)) != -1) {
-                    System.out.printf("Count: [%s].\n", count);
+                    //System.out.printf("Count: [%s].\n", count);
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     out.write(buffer, 0, count);
                     onReceiveMessage(out.toByteArray());

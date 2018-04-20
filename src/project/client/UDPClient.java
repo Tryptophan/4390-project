@@ -43,9 +43,7 @@ public abstract class UDPClient extends UDPEndpoint {
 
             File file = new File("recv-" + filename);
 
-            if (!file.exists()) {
-                file.createNewFile();
-            }
+            file.createNewFile();
 
             try (FileOutputStream fos = new FileOutputStream(file, true)) {
                 // File is being sent to us
