@@ -11,19 +11,21 @@ public class Server {
 
         String protocol = input.next();
 
-        // TODO: Get the server port from the user
+        // Get the server port from the user
+        System.out.println("Type in the port to run the server on: ");
+        int port = input.nextInt();
 
         if (protocol.equals("TCP")) {
             // Start TCP server
             try {
-                TCPServer server = new TCPServer(8080);
+                TCPServer server = new TCPServer(port);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
             // Start UDP server
             try {
-                UDPServer server = new UDPServer(8080);
+                UDPServer server = new UDPServer(port);
             } catch (Exception e) {
                 e.printStackTrace();
             }

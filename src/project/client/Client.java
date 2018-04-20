@@ -10,19 +10,23 @@ public class Client {
         System.out.println("Type in the protocol for the client (TCP/UDP):");
         String protocol = input.next();
 
-        // TODO: Get ip/port
+        // Get ip/port of server from user
+        System.out.println("Type in the address the server is running at [ip:port]:");
+        String host = input.next();
+        String ip = host.substring(0, host.indexOf(":"));
+        int port = Integer.parseInt(host.substring(host.indexOf(":") + 1));
 
         if (protocol.equals("TCP")) {
-            startTCP();
+            startTCP(ip, port);
         } else {
-            startUDP();
+            startUDP(ip, port);
         }
     }
 
     // TODO: pass in user input here
-    public static void startTCP() {
+    public static void startTCP(String ip, int port) {
         try {
-            TCPClient client = new TCPClient("127.0.0.1", 8080) {
+            TCPClient client = new TCPClient(ip, port) {
                 @Override
                 public void onFileComplete() throws Exception {
                     getTCPFile(this);
@@ -36,9 +40,9 @@ public class Client {
         }
     }
 
-    public static void startUDP() {
+    public static void startUDP(String ip, int port) {
         try {
-            UDPClient client = new UDPClient("127.0.0.1", 8080) {
+            UDPClient client = new UDPClient(ip, port) {
                 @Override
                 public void onFileComplete() throws Exception {
                     getUDPFile(this);
