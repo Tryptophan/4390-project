@@ -1,5 +1,6 @@
 package project.server;
 
+import project.Checksum;
 import project.MessageType;
 import project.UDPEndpoint;
 
@@ -10,6 +11,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 public class UDPServer extends UDPEndpoint {
 
@@ -89,6 +91,15 @@ public class UDPServer extends UDPEndpoint {
                 sendingFile = false;
                 // Let the client know they have the full file
                 sendMessage(MessageType.EOF.getBytes());
+
+                // Send the checksum of the file to the client to confirm it sent correctly
+                byte[] chk = (MessageType.CHK + ":").getBytes();
+                byte[] checksum = Checksum.getMD5Checksum(file);
+
+                byte[] message = Arrays.copyOf(chk, chk.length + checksum.length);
+                System.arraycopy(checksum, 0, message, chk.length, checksum.length);
+
+                sendMessage(message);
             } catch (Exception e) {
                 e.printStackTrace();
             }

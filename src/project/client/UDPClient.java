@@ -1,5 +1,6 @@
 package project.client;
 
+import project.Checksum;
 import project.MessageType;
 import project.UDPEndpoint;
 
@@ -8,11 +9,13 @@ import java.io.FileOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Arrays;
 
 public abstract class UDPClient extends UDPEndpoint {
 
     private boolean requestingFile = false;
     private String requestingFilename;
+    private byte[] clientChecksum = null;
 
     public UDPClient(String ip, int port) throws Exception {
         socket = new DatagramSocket();
@@ -34,8 +37,13 @@ public abstract class UDPClient extends UDPEndpoint {
             fileComplete();
         }
 
-        else if (str.equals(MessageType.EOF)) {
-            fileComplete();
+        if (str.equals(MessageType.EOF)) {
+            // Stop reading the file in
+            requestingFile = false;
+            // Check that the file sent correctly with the checksum sent
+            // Get the checksum of the file sent
+            clientChecksum = Checksum.getMD5Checksum(new File("recv-" + requestingFilename));
+            requestingFilename = null;
         }
 
         if (requestingFile) {
@@ -43,7 +51,9 @@ public abstract class UDPClient extends UDPEndpoint {
 
             File file = new File("recv-" + filename);
 
-            file.createNewFile();
+            if (!file.exists()) {
+                file.createNewFile();
+            }
 
             try (FileOutputStream fos = new FileOutputStream(file, true)) {
                 // File is being sent to us
@@ -55,6 +65,21 @@ public abstract class UDPClient extends UDPEndpoint {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+        // Start reading in the checksum
+        if (str.contains(MessageType.CHK)) {
+            byte[] serverChecksum = new byte[data.length - 4];
+            System.arraycopy(data, 4, serverChecksum, 0, serverChecksum.length);
+            System.out.printf("Server checksum: [%s], Client checksum: [%s].\n", new String(serverChecksum), new String(clientChecksum));
+            // Get if the two checksums are equal
+            boolean checksumMatched = Arrays.equals(serverChecksum, clientChecksum);
+            if (checksumMatched) {
+                System.out.println("OK: Generated checksum matches the one from the server.");
+            } else {
+                System.out.println("ERR: Generated checksum does not match the one from the server!");
+            }
+            fileComplete();
         }
     }
 

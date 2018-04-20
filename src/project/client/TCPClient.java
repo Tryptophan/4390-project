@@ -56,7 +56,9 @@ public abstract class TCPClient extends TCPEndpoint {
 
             File file = new File("recv-" + filename);
 
-            file.createNewFile();
+            if (!file.exists()) {
+                file.createNewFile();
+            }
 
             try (FileOutputStream fos = new FileOutputStream(file, true)) {
                 // File is being sent to us
