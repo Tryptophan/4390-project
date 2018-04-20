@@ -3,7 +3,7 @@ package project.server;
 import java.util.Scanner;
 
 public class Server {
-    public static void main(String args[]) {
+    public static void start() {
 
         // Ask user if we want to run a TCP or UDP server
         Scanner input = new Scanner(System.in);
@@ -15,7 +15,7 @@ public class Server {
         System.out.println("Type in the port to run the server on:");
         int port = input.nextInt();
 
-        if (protocol.equals("TCP")) {
+        if (protocol.toUpperCase().equals("TCP")) {
             // Start TCP server
             try {
                 TCPServer server = new TCPServer(port);

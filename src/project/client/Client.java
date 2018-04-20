@@ -5,7 +5,7 @@ import project.MessageType;
 import java.util.Scanner;
 
 public class Client {
-    public static void main(String args[]) {
+    public static void start() {
         Scanner input = new Scanner(System.in);
         System.out.println("Type in the protocol for the client (TCP/UDP):");
         String protocol = input.next();
@@ -16,7 +16,7 @@ public class Client {
         String ip = host.substring(0, host.indexOf(":"));
         int port = Integer.parseInt(host.substring(host.indexOf(":") + 1));
 
-        if (protocol.equals("TCP")) {
+        if (protocol.toUpperCase().equals("TCP")) {
             startTCP(ip, port);
         } else {
             startUDP(ip, port);

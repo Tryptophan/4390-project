@@ -2,3 +2,5 @@
 *.iml
 /out/
 recv-*
+/.gradle/
+/build/
