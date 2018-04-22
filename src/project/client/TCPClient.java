@@ -81,8 +81,10 @@ public abstract class TCPClient extends TCPEndpoint {
             boolean checksumMatched = Arrays.equals(serverChecksum, clientChecksum);
             if (checksumMatched) {
                 System.out.println("OK: Generated checksum matches the one from the server.");
+                sendMessage(MessageType.CHKOK.getBytes());
             } else {
                 System.out.println("ERR: Generated checksum does not match the one from the server!");
+                sendMessage(MessageType.CHKERR.getBytes());
             }
             fileComplete();
         }

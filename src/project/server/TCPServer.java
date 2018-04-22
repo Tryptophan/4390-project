@@ -63,6 +63,14 @@ public class TCPServer extends TCPEndpoint {
         } else if (str.equals(MessageType.ACK) && sendingFile) {
             sendNextFileChunk = true;
         }
+
+        if (str.equals(MessageType.CHKOK)) {
+            System.out.println("OK: Generated checksum matches the one from the server.");
+        }
+
+        if (str.equals(MessageType.CHKERR)) {
+            System.out.println("ERR: Generated checksum does not match the one from the server!");
+        }
     }
 
     public void sendFile(File file) {
